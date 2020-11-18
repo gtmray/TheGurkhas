@@ -34,7 +34,13 @@ time_current = time()
 score = 0
 kill_range = 50
 run = True
+freeze = False
 
+# For pillar
+x_pillar = 400
+y_pillar = 300
+w_pillar = 20
+h_pillar = 20
 
 def draw_forts():
   fort_width = 20
@@ -77,8 +83,10 @@ def random_enemies_create(width, height):
     return enemies_list
 
 def enemies_movement(enemies_list, enemy_speed):
-  for items in enemies_list:
-    items[0] = items[0] - enemy_speed # Enemies movement to left
+  global freeze
+  if freeze==False:
+    for items in enemies_list:
+      items[0] = items[0] - enemy_speed # Enemies movement to left
     
   for co_x, co_y, co_w, co_h in enemies_list:
     pygame.draw.rect(win, (255, 255, 0), (co_x, co_y, co_w, co_h))
@@ -88,7 +96,7 @@ def enemy_crossing_score(enemies_list):
   global enemy_count
   for items in enemies_list:
     if items[0]<0:
-      score = score - 1
+      score -= 1
       enemies_list.remove(items)
       enemy_count -= 1
 
@@ -102,6 +110,36 @@ def kill_enemy(enemies_list, kill_range):
         score += 1
         enemy_count -= 1
 
+def show_score(score):
+  font = pygame.font.Font('freesansbold.ttf', 20)
+  Score = f"Score: {score}"
+  text = font.render(Score, True, black, white)
+  textRect = text.get_rect()
+  textRect.center = (scwidth//2, scheight//5)
+  win.blit(text, textRect)
+
+def create_pillar(x, y, w, h):
+  pygame.draw.rect(win, white, (x, y, w, h))
+
+def carry_pillar(enemies_list, x_pillar, y_pillar):
+  closeness = 20
+  for i in enemies_list:
+    if((i[0] > (x_pillar-closeness) and i[0] < (x_pillar+closeness)) and (i[1] > (y_pillar-closeness) and i[1] < (y_pillar+closeness))):
+      x_pillar = i[0]
+      y_pillar = i[1]
+  return x_pillar, y_pillar
+
+def game_over(x_pillar):
+  global freeze
+  font = pygame.font.Font('freesansbold.ttf', 15)
+  Score = f"BORDER ENCROACHMENT | GAME OVER!!! | Score: {score}"
+  text = font.render(Score, True, black, white)
+  textRect = text.get_rect()
+  textRect.center = (scwidth//2, scheight//5)
+  win.blit(text, textRect)
+  freeze = True
+
+
 while run:
 
   pygame.time.delay(100)
@@ -110,24 +148,27 @@ while run:
       #run == False
       pygame.quit()
       sys.exit()
+
   keys = pygame.key.get_pressed()
-  if keys[pygame.K_LEFT] and x > velocity:
-      x -= velocity
-  
-  if keys[pygame.K_RIGHT] and x < scwidth - width - velocity:
-      x += velocity
+  if freeze==False:
+    if keys[pygame.K_LEFT] and x > velocity:
+        x -= velocity
+    
+    if keys[pygame.K_RIGHT] and x < scwidth - width - velocity:
+        x += velocity
 
-  if keys[pygame.K_UP] and y > velocity:
-      if(y>=upper_boundary): # Upper boundary for player
-        y -= velocity
+    if keys[pygame.K_UP] and y > velocity:
+        if(y>=upper_boundary): # Upper boundary for player
+          y -= velocity
 
-  if keys[pygame.K_DOWN] and y < scheight - height - velocity:
-      y += velocity
+    if keys[pygame.K_DOWN] and y < scheight - height - velocity:
+        y += velocity
+    
+    if keys[pygame.K_SPACE]:
+        kill_enemy(enemies_list, kill_range)
   
-  if keys[pygame.K_SPACE]:
-      kill_enemy(enemies_list, kill_range)
-  
-  win.fill((0, 0, 0))
+  win.fill((0, 0, 0)) # Filling with black screen
+
   # Background create
   pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
   draw_forts()
@@ -140,5 +181,13 @@ while run:
   
   enemies_movement(en_list, enemy_speed)
   enemy_crossing_score(en_list)
-  print(score)
+  create_pillar(x_pillar, y_pillar, w_pillar, h_pillar)
+  x_pillar, y_pillar = carry_pillar(enemies_list, x_pillar, y_pillar)
+  
+  if x_pillar < 5: # Check if pillar reaches to left-most side
+    game_over(x_pillar)
+  
+  else:
+    show_score(score)  
+  
   pygame.display.update()
