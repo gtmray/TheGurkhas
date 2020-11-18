@@ -9,14 +9,15 @@ scheight = 500
 win = pygame.display.set_mode((scwidth, scheight))
 pygame.display.set_caption("The Gurkhas")
 
+# For player
 x=50
 y=300
 upper_boundary=220
 width=40
 height=60
 velocity=10
-run = True
 
+# For enemy
 enemy_count = 0
 enemies_list = []
 enemy_speed = 10
@@ -24,6 +25,9 @@ e_width = 10
 e_height = 10
 
 time_current = time()
+score = 0
+kill_range = 50
+run = True
 
 def random_enemies_create(width, height):
     global enemy_count
@@ -34,7 +38,7 @@ def random_enemies_create(width, height):
     if enemy_count < 5:
       enemies_list.append([x, y, width, height])
       enemy_count += 1
-    print(enemies_list)
+    #print(enemies_list)
     return enemies_list
 
 def enemies_movement(enemies_list, enemy_speed):
@@ -43,6 +47,25 @@ def enemies_movement(enemies_list, enemy_speed):
     
   for co_x, co_y, co_w, co_h in enemies_list:
     pygame.draw.rect(win, (255, 255, 0), (co_x, co_y, co_w, co_h))
+
+def enemy_crossing_score(enemies_list):
+  global score
+  global enemy_count
+  for items in enemies_list:
+    if items[0]<0:
+      score = score - 1
+      enemies_list.remove(items)
+      enemy_count -= 1
+
+def kill_enemy(enemies_list, kill_range):
+  global score
+  global enemy_count
+
+  for i in enemies_list:
+      if((i[0] > (x-kill_range) and i[0] < (x+kill_range)) and (i[1] > (y-kill_range) and i[1] < (y+kill_range))):
+        enemies_list.remove(i)
+        score += 1
+        enemy_count -= 1
 
 while run:
 
@@ -66,6 +89,9 @@ while run:
   if keys[pygame.K_DOWN] and y < scheight - height - velocity:
       y += velocity
   
+  if keys[pygame.K_SPACE]:
+      kill_enemy(enemies_list, kill_range)
+  
   win.fill((0, 0, 0))  
   
   pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
@@ -74,4 +100,6 @@ while run:
     en_list = random_enemies_create(e_width, e_height)
   
   enemies_movement(en_list, enemy_speed)
+  enemy_crossing_score(en_list)
+  print(score)
   pygame.display.update()
