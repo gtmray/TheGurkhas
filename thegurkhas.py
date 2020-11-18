@@ -6,6 +6,12 @@ from time import time, sleep
 pygame.init()
 scwidth = 500
 scheight = 500
+white = (255, 255, 255)
+black = (0, 0, 0)
+red = (255, 0, 0)
+blue = (0, 0, 255)
+green = (0, 255, 0)
+
 win = pygame.display.set_mode((scwidth, scheight))
 pygame.display.set_caption("The Gurkhas")
 
@@ -28,6 +34,35 @@ time_current = time()
 score = 0
 kill_range = 50
 run = True
+
+
+def draw_forts():
+  fort_width = 20
+  fort_height = 30
+
+  x1_fort = 0
+  y1_fort = scheight/3
+  pygame.draw.rect(win, blue, (x1_fort, y1_fort, fort_width, fort_height))
+
+  x2_fort = scwidth/2
+  y2_fort = scheight/3
+  pygame.draw.rect(win, blue, (x2_fort, y2_fort, fort_width, fort_height))
+
+  x3_fort = scwidth
+  y3_fort = scheight/3
+  pygame.draw.rect(win, blue, (x3_fort, y3_fort, fort_width, fort_height))
+
+  x4_fort = 0
+  y4_fort = scheight
+  pygame.draw.rect(win, blue, (x4_fort, y4_fort, fort_width, fort_height))
+
+  x5_fort = scwidth/2
+  y5_fort = scheight
+  pygame.draw.rect(win, blue, (x5_fort, y5_fort, fort_width, fort_height))
+
+  x6_fort = scwidth
+  y6_fort = scheight
+  pygame.draw.rect(win, blue, (x6_fort, y6_fort, fort_width, fort_height))
 
 def random_enemies_create(width, height):
     global enemy_count
@@ -92,8 +127,12 @@ while run:
   if keys[pygame.K_SPACE]:
       kill_enemy(enemies_list, kill_range)
   
-  win.fill((0, 0, 0))  
-  
+  win.fill((0, 0, 0))
+  # Background create
+  pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
+  draw_forts()
+
+  # Player create
   pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
 
   if(round((time()-time_current))%5==0): # Creating enemies every 5 seconds
