@@ -42,6 +42,11 @@ y_pillar = 300
 w_pillar = 20
 h_pillar = 20
 
+# Sounds
+killing_sound = pygame.mixer.Sound("Sounds/Enemy killed.wav")
+game_over_sound = pygame.mixer.Sound("Sounds/Game over.wav")
+play_once = True # For gameover sound
+
 def draw_forts():
   fort_width = 20
   fort_height = 30
@@ -109,6 +114,8 @@ def kill_enemy(enemies_list, kill_range):
         enemies_list.remove(i)
         score += 1
         enemy_count -= 1
+  pygame.mixer.Sound.play(killing_sound)
+  pygame.mixer.music.stop()
 
 def show_score(score):
   font = pygame.font.Font('freesansbold.ttf', 20)
@@ -139,7 +146,6 @@ def game_over(x_pillar):
   win.blit(text, textRect)
   freeze = True
 
-
 while run:
 
   pygame.time.delay(100)
@@ -151,6 +157,7 @@ while run:
 
   keys = pygame.key.get_pressed()
   if freeze==False:
+  
     if keys[pygame.K_LEFT] and x > velocity:
         x -= velocity
     
@@ -186,7 +193,11 @@ while run:
   
   if x_pillar < 5: # Check if pillar reaches to left-most side
     game_over(x_pillar)
-  
+    if play_once == True:
+      pygame.mixer.Sound.play(game_over_sound)
+      pygame.mixer.music.stop()
+      play_once = False
+
   else:
     show_score(score)  
   
