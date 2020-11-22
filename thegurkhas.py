@@ -29,6 +29,7 @@ enemies_list = []
 enemy_speed = 10
 e_width = 10
 e_height = 10
+en_list = []
 
 time_current = time()
 score = 0
@@ -43,9 +44,12 @@ w_pillar = 20
 h_pillar = 20
 
 # Sounds
+background_sound = pygame.mixer.Sound("Sounds/Background.ogg")
 killing_sound = pygame.mixer.Sound("Sounds/Enemy killed.wav")
 game_over_sound = pygame.mixer.Sound("Sounds/Game over.wav")
 play_once = True # For gameover sound
+pygame.mixer.Sound.play(background_sound)
+pygame.mixer.Sound.set_volume(background_sound, 0.2)
 
 def draw_forts():
   fort_width = 20
@@ -185,7 +189,7 @@ while run:
 
   if(round((time()-time_current))%5==0): # Creating enemies every 5 seconds
     en_list = random_enemies_create(e_width, e_height)
-  
+
   enemies_movement(en_list, enemy_speed)
   enemy_crossing_score(en_list)
   create_pillar(x_pillar, y_pillar, w_pillar, h_pillar)
@@ -197,6 +201,7 @@ while run:
       pygame.mixer.Sound.play(game_over_sound)
       pygame.mixer.music.stop()
       play_once = False
+    #pygame.mixer.music.pause
 
   else:
     show_score(score)  
