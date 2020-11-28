@@ -34,22 +34,20 @@ en_list = []
 time_current = time()
 score = 0
 kill_range = 50
-run = True
 freeze = False
 
-# For pillar
-x_pillar = 400
-y_pillar = 300
-w_pillar = 20
-h_pillar = 20
 
 # Sounds
 background_sound = pygame.mixer.Sound("Sounds/Background.ogg")
 killing_sound = pygame.mixer.Sound("Sounds/Enemy killed.wav")
 game_over_sound = pygame.mixer.Sound("Sounds/Game over.wav")
-play_once = True # For gameover sound
 pygame.mixer.Sound.play(background_sound)
 pygame.mixer.Sound.set_volume(background_sound, 0.2)
+
+
+# Start Menu
+smallfont = pygame.font.SysFont('Corbel', 35)
+text = smallfont.render('QUIT', True, white)
 
 def draw_forts():
   fort_width = 20
@@ -150,60 +148,217 @@ def game_over(x_pillar):
   win.blit(text, textRect)
   freeze = True
 
-while run:
+#****************************************************************************
 
-  pygame.time.delay(100)
-  for event in pygame.event.get():
-    if event.type == pygame.QUIT:
-      #run == False
-      pygame.quit()
-      sys.exit()
+# light shade of the button
+color_light = (170, 170, 170)
 
-  keys = pygame.key.get_pressed()
-  if freeze==False:
-  
-    if keys[pygame.K_LEFT] and x > velocity:
-        x -= velocity
-    
-    if keys[pygame.K_RIGHT] and x < scwidth - width - velocity:
-        x += velocity
+# dark shade of the button
+color_dark = (100, 100, 100)
 
-    if keys[pygame.K_UP] and y > velocity:
-        if(y>=upper_boundary): # Upper boundary for player
-          y -= velocity
+# defining a font
+smallfont = pygame.font.SysFont('Corbel', 35)
 
-    if keys[pygame.K_DOWN] and y < scheight - height - velocity:
-        y += velocity
-    
-    if keys[pygame.K_SPACE]:
-        kill_enemy(enemies_list, kill_range)
-  
-  win.fill((0, 0, 0)) # Filling with black screen
+new_game_text = smallfont.render('NEW GAME', True, white)
+instructions_text = smallfont.render('INSTRUCTIONS', True, white)
+about_us_text = smallfont.render('ABOUT US', True, white)
+quit_text = smallfont.render('QUIT', True, white)
 
-  # Background create
-  pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
-  draw_forts()
+global run, menu, instructions
+menu = True
+run = False
+instructions = False
+about = False
 
-  # Player create
-  pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
+def main_menu(run, menu, instructions, about):
+  while menu:
+      mouse = pygame.mouse.get_pos()
+      for ev in pygame.event.get():
 
-  if(round((time()-time_current))%5==0): # Creating enemies every 5 seconds
-    en_list = random_enemies_create(e_width, e_height)
+          if ev.type == pygame.QUIT:
+              pygame.quit()
+              sys.exit()
 
-  enemies_movement(en_list, enemy_speed)
-  enemy_crossing_score(en_list)
-  create_pillar(x_pillar, y_pillar, w_pillar, h_pillar)
-  x_pillar, y_pillar = carry_pillar(enemies_list, x_pillar, y_pillar)
-  
-  if x_pillar < 5: # Check if pillar reaches to left-most side
-    game_over(x_pillar)
-    if play_once == True:
-      pygame.mixer.Sound.play(game_over_sound)
-      pygame.mixer.music.stop()
-      play_once = False
-    #pygame.mixer.music.pause
+          if ev.type == pygame.MOUSEBUTTONDOWN:
+              if 172 <= mouse[0] <= 338 and 85 <= mouse[1] <= 105:
+                  run = True
+                  menu = False
+                  instructions = False
+              if 172 <= mouse[0] <= 392 and 153 <= mouse[1] <= 177:
+                  instructions = True
+                  menu = False
+              if 172 <= mouse[0] <= 324 and 223 <= mouse[1] <= 246:
+                  about = True
+                  menu = False
+              if 172 <= mouse[0] <= 243 and 296 <= mouse[1] <= 318:
+                  pygame.quit()
+                  sys.exit()
 
-  else:
-    show_score(score)  
-  
-  pygame.display.update()
+      win.fill((60, 25, 60))
+      # Draw a rectangle when hovered to the menu
+
+      # New game
+      if 172 <= mouse[0] <= 338 and 85 <= mouse[1] <= 105:
+          pygame.draw.rect(win, color_light, [172, 80, 166, 40])
+
+      # Instructions
+      elif 172 <= mouse[0] <= 392 and 153 <= mouse[1] <= 177:
+          pygame.draw.rect(win, color_light, [172, 145, 220, 40])
+      
+      # About us
+      elif 172 <= mouse[0] <= 324 and 223 <= mouse[1] <= 246:
+          pygame.draw.rect(win, color_light, [172, 220, 152, 40])
+
+      # Quit
+      elif 172 <= mouse[0] <= 243 and 296 <= mouse[1] <= 318:
+          pygame.draw.rect(win, color_light, [172, 290, 71, 40])
+
+      win.blit(new_game_text, (scwidth/2-80, scheight/2-170))
+      win.blit(instructions_text, (scwidth/2-80, scheight/2-100))
+      win.blit(about_us_text, (scwidth/2-80, scheight/2-30))
+      win.blit(quit_text, (scwidth/2-80, scheight/2+40))
+      pygame.display.update()
+  return run, menu, instructions, about
+
+#***************************************************************************
+def instruct(instructions):
+  global menu
+  win.fill((60, 25, 60))
+  while instructions:
+    font = pygame.font.Font('freesansbold.ttf', 30)
+    list_text = ["Press space bar ", "to kill the enemies", "and save our border.", "           ", "AAYO GORKHALI!!!!!"]
+    change = 0
+    for i in list_text:
+      change += 40
+      text = font.render(i, False, white)
+      text_rect = (40, 40+change)
+      win.blit(text, text_rect)
+
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_BACKSPACE]:
+      instructions = False
+      menu = True
+      return menu, instructions
+    pygame.display.update()
+  return menu, instructions
+
+
+def about_us(about):
+  global menu
+  win.fill((60, 25, 60))
+  while about:
+    font = pygame.font.Font('freesansbold.ttf', 30)
+    list_text = ["We, the game developers","are the students", "of IOE Thapathali Campus.", "Rewan Gautam", "Bishwa Prakash Subedi", "Anjal Bam", "Bishwash Gurung", "         ", "BEI 075"]
+    change = 0
+    for i in list_text:
+      change += 40
+      text = font.render(i, False, white)
+      text_rect = (40, 40+change)
+      win.blit(text, text_rect)
+
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+    keys = pygame.key.get_pressed()
+    if keys[pygame.K_BACKSPACE]:
+      about = False
+      menu = True
+      return menu, about
+    pygame.display.update()
+  return menu, about
+
+def start_game(run):
+  # For pillar
+  global menu, instructions, about, x, y, width, height, en_list
+  x_pillar = 400
+  y_pillar = 300
+  w_pillar = 20
+  h_pillar = 20
+  play_once = True  # For gameover sound
+  mouse = pygame.mouse.get_pos()
+  while run:
+
+    pygame.time.delay(100)
+    for event in pygame.event.get():
+      if event.type == pygame.QUIT:
+        pygame.quit()
+        sys.exit()
+
+      if event.type == pygame.MOUSEBUTTONDOWN:
+        if width/3 <= mouse[0] <= width/2+140 and height/3 <= mouse[1] <= height/2+40:
+          pygame.quit()
+          sys.exit()
+
+    keys = pygame.key.get_pressed()
+    if freeze == False:
+
+      if keys[pygame.K_LEFT] and x > velocity:
+          x -= velocity
+
+      if keys[pygame.K_RIGHT] and x < scwidth - width - velocity:
+          x += velocity
+
+      if keys[pygame.K_UP] and y > velocity:
+          if(y >= upper_boundary):  # Upper boundary for player
+            y -= velocity
+
+      if keys[pygame.K_DOWN] and y < scheight - height - velocity:
+          y += velocity
+
+      if keys[pygame.K_SPACE]:
+          kill_enemy(enemies_list, kill_range)
+      if keys[pygame.K_BACKSPACE]:
+          instructions = False
+          menu = True
+          run = False
+          return run, menu, instructions, about
+
+    win.fill((0, 0, 0))  # Filling with black screen
+    # Background create
+    pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
+    draw_forts()
+
+    # Player create
+    pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
+
+    if(round((time()-time_current)) % 5 == 0):  # Creating enemies every 5 seconds
+      en_list = random_enemies_create(e_width, e_height)
+
+    enemies_movement(en_list, enemy_speed)
+    enemy_crossing_score(en_list)
+    create_pillar(x_pillar, y_pillar, w_pillar, h_pillar)
+    x_pillar, y_pillar = carry_pillar(enemies_list, x_pillar, y_pillar)
+
+    if x_pillar < 5:  # Check if pillar reaches to left-most side
+      game_over(x_pillar)
+      if play_once == True:
+        pygame.mixer.Sound.play(game_over_sound)
+        pygame.mixer.music.stop()
+        play_once = False
+      #pygame.mixer.music.pause
+
+    else:
+      show_score(score)
+
+    if width/2 <= mouse[0] <= width/2+140 and height/2 <= mouse[1] <= height/2+40:
+        pygame.draw.rect(win, red, [width/2, height/2, 140, 40])
+
+    else:
+        pygame.draw.rect(win, red, [width/2, height/2, 140, 40])
+
+    win.blit(text, (width/2+50, height/2))
+    pygame.display.update()
+  return run, menu, instructions, about
+
+condition = True
+while condition:
+  run, menu, instructions, about = main_menu(run, menu, instructions, about)
+  menu, instructions = instruct(instructions)
+  menu, about = about_us(about)
+  run, menu, instructions, about = start_game(run)
+
