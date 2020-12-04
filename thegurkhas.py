@@ -24,6 +24,9 @@ pygame.display.set_caption("The Gurkhas")
 icon = pygame.image.load('Images/icon.png')
 pygame.display.set_icon(icon)
 
+title_image_file = "Images/title.png"
+title_image = pygame.image.load(title_image_file)
+
 # For player
 x = 50
 y = 300
@@ -241,6 +244,7 @@ def main_menu(run, menu, instructions, about):
       win.blit(instructions_text, (scwidth/2-80, scheight/2-100))
       win.blit(about_us_text, (scwidth/2-80, scheight/2-30))
       win.blit(quit_text, (scwidth/2-80, scheight/2+40))
+      win.blit(title_image, (80, 10))
       pygame.display.update()
   return run, menu, instructions, about
 
