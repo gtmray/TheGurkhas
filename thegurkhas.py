@@ -3,9 +3,16 @@ import sys
 import random
 from time import time, sleep
 
+# Pygame initialization
+
 pygame.init()
+
+# Screen width
 scwidth = 500
+
+# Screen height
 scheight = 500
+
 white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
@@ -14,14 +21,20 @@ green = (0, 255, 0)
 
 win = pygame.display.set_mode((scwidth, scheight))
 pygame.display.set_caption("The Gurkhas")
+icon = pygame.image.load('Images/icon.png')
+pygame.display.set_icon(icon)
 
 # For player
 x = 50
 y = 300
-upper_boundary = 220
+upper_boundary = 220 # Boundary upto which player can move on y axis
 width = 40
 height = 60
 velocity = 10
+player_image_file = "Images/player.png"
+player_image = pygame.image.load(player_image_file)
+player_image_kill = "Images/player.png"
+player_kills = pygame.image.load(player_image_kill)
 
 # For enemy
 enemy_count = 0
@@ -30,12 +43,13 @@ enemy_speed = 10
 e_width = 10
 e_height = 10
 en_list = []
+enemy_image_file = "Images/icon.png"
+enemy_image = pygame.image.load(enemy_image_file)
 
-time_current = time()
+time_current = time() # Current time
 score = 0
-kill_range = 50
-freeze = False
-
+kill_range = 50 # Distance considered for killing
+freeze = False # True when game over
 
 # Sounds
 background_sound = pygame.mixer.Sound("Sounds/Background.ogg")
@@ -89,14 +103,17 @@ def draw_forts():
   pygame.draw.rect(win, blue, (x6_fort, y6_fort, fort_width, fort_height))
 
 
+def player_blit(player_image):
+    win.blit(player_image, (x, y))
+
 def random_enemies_create(width, height):
     global enemy_count
-    range_a, range_b = 220, 500
+    range_a, range_b = 220, 500 # Position of enemies in y axis
     random_y = random.randint(range_a, range_b)  # Randomize enemy position
     x, y = 490, random_y
 
     if enemy_count < 5:
-      enemies_list.append([x, y, width, height])
+      enemies_list.append([x, y, width, height]) # Create 5 enemies at a time
       enemy_count += 1
     # print(enemies_list)
     return enemies_list
@@ -109,14 +126,15 @@ def enemies_movement(enemies_list, enemy_speed):
       items[0] = items[0] - enemy_speed  # Enemies movement to left
 
   for co_x, co_y, co_w, co_h in enemies_list:
-    pygame.draw.rect(win, (255, 255, 0), (co_x, co_y, co_w, co_h))
+    #pygame.draw.rect(win, (255, 255, 0), (co_x, co_y, co_w, co_h))
+    win.blit(enemy_image, (co_x, co_y))
 
 
 def enemy_crossing_score(enemies_list):
   global score
   global enemy_count
   for items in enemies_list:
-    if items[0] < 0:
+    if items[0] < 0: # When enemy reaches to the end(leftmost side)
       score -= 1
       enemies_list.remove(items)
       enemy_count -= 1
@@ -127,6 +145,7 @@ def kill_enemy(enemies_list, kill_range):
   global enemy_count
 
   for i in enemies_list:
+      # Kill the enemies who are near to the player
       if((i[0] > (x-kill_range) and i[0] < (x+kill_range)) and (i[1] > (y-kill_range) and i[1] < (y+kill_range))):
         enemies_list.remove(i)
         score += 1
@@ -150,6 +169,7 @@ def create_pillar(x, y, w, h):
 
 def carry_pillar(enemies_list, x_pillar, y_pillar, closeness):
   for i in enemies_list:
+    # Carry the pillar if it is near enemy
     if((i[0] > (x_pillar-closeness) and i[0] < (x_pillar+closeness)) and (i[1] > (y_pillar-closeness) and i[1] < (y_pillar+closeness))):
       x_pillar = i[0]
       y_pillar = i[1]
@@ -164,6 +184,7 @@ def game_over(x_pillar):
   textRect = text.get_rect()
   textRect.center = (scwidth//2, scheight//5)
   win.blit(text, textRect)
+  # Freeze player, enemy movement
   freeze = True
 
 def main_menu(run, menu, instructions, about):
@@ -176,16 +197,23 @@ def main_menu(run, menu, instructions, about):
               sys.exit()
 
           if ev.type == pygame.MOUSEBUTTONDOWN:
+              # New game 
               if 172 <= mouse[0] <= 338 and 85 <= mouse[1] <= 105:
                   run = True
                   menu = False
                   instructions = False
+
+              # Instructions 
               if 172 <= mouse[0] <= 392 and 153 <= mouse[1] <= 177:
                   instructions = True
                   menu = False
+
+              # About us 
               if 172 <= mouse[0] <= 324 and 223 <= mouse[1] <= 246:
                   about = True
                   menu = False
+              
+              # Quit
               if 172 <= mouse[0] <= 243 and 296 <= mouse[1] <= 318:
                   pygame.quit()
                   sys.exit()
@@ -225,6 +253,7 @@ def instruct(instructions):
         "and save our border.", "           ", "AAYO GORKHALI!!!!!"]
     change = 0
     for i in list_text:
+      # To display the text, changing the y axis line by 40 
       change += 40
       text = font.render(i, False, white)
       text_rect = (40, 40+change)
@@ -235,6 +264,8 @@ def instruct(instructions):
         pygame.quit()
         sys.exit()
     keys = pygame.key.get_pressed()
+    
+    # Return to main menu
     if keys[pygame.K_BACKSPACE]:
       instructions = False
       menu = True
@@ -252,6 +283,7 @@ def about_us(about):
         "Rewan Gautam", "Bishwa Prakash Subedi", "Anjal Bam", "Bishwash Gurung", "         ", "BEI 075"]
     change = 0
     for i in list_text:
+      # To display the text, changing the y axis line by 40
       change += 40
       text = font.render(i, False, white)
       text_rect = (40, 40+change)
@@ -284,7 +316,8 @@ def start_game(run):
   closeness = 20
 
   play_once = True  # For gameover sound
-  map1 = map2 = map3 = game_loop = False
+  kill_state = False # When set to true, player changes shape to killing position
+  map1 = map2 = map3 = game_loop = False 
   while run:
     mouse = pygame.mouse.get_pos()
     for ev in pygame.event.get():
@@ -293,14 +326,20 @@ def start_game(run):
               sys.exit()
             
         if ev.type == pygame.MOUSEBUTTONDOWN:
+
+              # Limpiyadhura
               if 172 <= mouse[0] <= 338 and 85 <= mouse[1] <= 105:
                   map1 = True
                   game_loop = True
                   run = False
+
+              # Kalapani
               if 172 <= mouse[0] <= 392 and 153 <= mouse[1] <= 177:
                   map2 = True
                   game_loop = True
                   run = False
+
+              # Lipulekh
               if 172 <= mouse[0] <= 324 and 223 <= mouse[1] <= 246:
                   map3 = True
                   game_loop = True
@@ -312,6 +351,8 @@ def start_game(run):
         run = False
         return run, menu, instructions, about
     win.fill((60, 25, 60))
+
+    # For hovering
     # Map 1
     if 172 <= mouse[0] <= 338 and 85 <= mouse[1] <= 105:
       pygame.draw.rect(win, color_light, [172, 80, 190, 40])
@@ -332,6 +373,7 @@ def start_game(run):
 
   while game_loop:
 
+    # To avoid drastic change of co-ordinates
     pygame.time.delay(100)
     for event in pygame.event.get():
       if event.type == pygame.QUIT:
@@ -355,7 +397,9 @@ def start_game(run):
           y += velocity
 
       if keys[pygame.K_SPACE]:
+          kill_state = True
           kill_enemy(enemies_list, kill_range)
+
       if keys[pygame.K_BACKSPACE]:
           instructions = False
           menu = True
@@ -363,13 +407,18 @@ def start_game(run):
           return run, menu, instructions, about
 
     win.fill((0, 0, 0))  # Filling with black screen
+    
     # Background create
     pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
     draw_forts()
 
     # Player create
-    pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
-
+    # pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
+    if kill_state==False:
+      player_blit(player_image)
+    else:
+      player_blit(player_kills)
+      kill_state = False
     if(round((time()-time_current)) % 5 == 0):  # Creating enemies every 5 seconds
       en_list = random_enemies_create(e_width, e_height)
 
@@ -377,9 +426,11 @@ def start_game(run):
       enemies_movement(en_list, enemy_speed)
     elif map2 == True:
       closeness = 30
+      # Increased enemy speed for map2
       enemies_movement(en_list, enemy_speed+10)
     elif map3 == True:
       closeness = 30
+      # Increased enemy speed for map3
       enemies_movement(en_list, enemy_speed+15)
       
     enemy_crossing_score(en_list)
@@ -388,6 +439,8 @@ def start_game(run):
 
     if x_pillar < 5:  # Check if pillar reaches to left-most side
       game_over(x_pillar)
+
+      # To avoid game over looping sound
       if play_once == True:
         pygame.mixer.Sound.play(game_over_sound)
         pygame.mixer.music.stop()
