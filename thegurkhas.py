@@ -27,6 +27,19 @@ pygame.display.set_icon(icon)
 title_image_file = "Images/title.png"
 title_image = pygame.image.load(title_image_file)
 
+background1_image_file = "Images/map1.png"
+background1_image = pygame.image.load(background1_image_file)
+background2_image_file = "Images/map2.png"
+background2_image = pygame.image.load(background2_image_file)
+background3_image_file = "Images/map3.png"
+background3_image = pygame.image.load(background3_image_file)
+
+playground_file = "Images/playground.png"
+playground = pygame.image.load(playground_file)
+
+pillar_file = "Images/pillar.png"
+pillar = pygame.image.load(pillar_file)
+
 # For player
 x = 50
 y = 300
@@ -34,9 +47,15 @@ upper_boundary = 220 # Boundary upto which player can move on y axis
 width = 40
 height = 60
 velocity = 10
-player_image_file = "Images/player.png"
-player_image = pygame.image.load(player_image_file)
-player_image_kill = "Images/player.png"
+move = 1 # To toggle legs position
+
+player_image_file1 = "Images/right1.png"
+player_image1 = pygame.image.load(player_image_file1)
+player_image_file2 = "Images/right2.png"
+player_image2 = pygame.image.load(player_image_file2)
+
+
+player_image_kill = "Images/khukuri show.png"
 player_kills = pygame.image.load(player_image_kill)
 
 # For enemy
@@ -46,8 +65,14 @@ enemy_speed = 10
 e_width = 10
 e_height = 10
 en_list = []
-enemy_image_file = "Images/icon.png"
-enemy_image = pygame.image.load(enemy_image_file)
+move_enemy = 1
+enemy_image_file1 = "Images/enemy.png"
+enemy_image1 = pygame.image.load(enemy_image_file1)
+enemy_image_file2 = "Images/enemy.png"
+enemy_image2 = pygame.image.load(enemy_image_file2)
+
+enemy_killed_file = "Images/killed.png"
+enemy_killed = pygame.image.load(enemy_killed_file)
 
 time_current = time() # Current time
 score = 0
@@ -109,6 +134,15 @@ def draw_forts():
 def player_blit(player_image):
     win.blit(player_image, (x, y))
 
+def enemy_killed_blit(killed_image, x_co, y_co):
+    win.blit(killed_image, (x_co, y_co))
+
+def background_blit(background_image):
+    win.blit(background_image, (0, 0))
+
+def playground_blit(playground):
+    win.blit(playground, (0, 166))
+
 def random_enemies_create(width, height):
     global enemy_count
     range_a, range_b = 220, 500 # Position of enemies in y axis
@@ -123,14 +157,20 @@ def random_enemies_create(width, height):
 
 
 def enemies_movement(enemies_list, enemy_speed):
-  global freeze
+  global freeze, move_enemy
   if freeze == False:
     for items in enemies_list:
       items[0] = items[0] - enemy_speed  # Enemies movement to left
 
   for co_x, co_y, co_w, co_h in enemies_list:
     #pygame.draw.rect(win, (255, 255, 0), (co_x, co_y, co_w, co_h))
-    win.blit(enemy_image, (co_x, co_y))
+    if(move_enemy==1):
+      move_enemy = 2
+      win.blit(enemy_image1, (co_x, co_y))
+    else:
+      move_enemy = 1
+      win.blit(enemy_image2, (co_x, co_y))
+
 
 
 def enemy_crossing_score(enemies_list):
@@ -147,15 +187,18 @@ def kill_enemy(enemies_list, kill_range):
   global score
   global enemy_count
 
+  killed = []
   for i in enemies_list:
       # Kill the enemies who are near to the player
       if((i[0] > (x-kill_range) and i[0] < (x+kill_range)) and (i[1] > (y-kill_range) and i[1] < (y+kill_range))):
         enemies_list.remove(i)
         score += 1
         enemy_count -= 1
+        killed.append((i[0], i[1]))
+
   pygame.mixer.Sound.play(killing_sound)
   pygame.mixer.music.stop()
-
+  return killed
 
 def show_score(score):
   font = pygame.font.Font('freesansbold.ttf', 20)
@@ -167,7 +210,8 @@ def show_score(score):
 
 
 def create_pillar(x, y, w, h):
-  pygame.draw.rect(win, white, (x, y, w, h))
+  #pygame.draw.rect(win, white, (x, y, w, h))
+  win.blit(pillar, (x, y))
 
 
 def carry_pillar(enemies_list, x_pillar, y_pillar, closeness):
@@ -254,7 +298,7 @@ def instruct(instructions):
   while instructions:
     font = pygame.font.Font('freesansbold.ttf', 30)
     list_text = ["Press space bar ", "to kill the enemies",
-        "and save our border.", "           ", "AAYO GORKHALI!!!!!"]
+        "and save our border.", " ", "AAYO GORKHALI!!!"]
     change = 0
     for i in list_text:
       # To display the text, changing the y axis line by 40 
@@ -283,8 +327,8 @@ def about_us(about):
   win.fill((60, 25, 60))
   while about:
     font = pygame.font.Font('freesansbold.ttf', 30)
-    list_text = ["We, the game developers", "are the students", "of IOE Thapathali Campus.",
-        "Rewan Gautam", "Bishwa Prakash Subedi", "Anjal Bam", "Bishwash Gurung", "         ", "BEI 075"]
+    list_text = ["We, the game developers", "are the students", "of IOE Thapathali Campus.", " ",
+        "Rewan Gautam", "Bishwa Prakash Subedi", "Anjal Bam", "Bishwash Gurung", " ", "BEI 075"]
     change = 0
     for i in list_text:
       # To display the text, changing the y axis line by 40
@@ -305,22 +349,25 @@ def about_us(about):
     pygame.display.update()
   return menu, about
 
-
 def start_game(run):
   limpiyadhura = smallfont.render('Limpiyadhura', True, white)
   lipulekh = smallfont.render('Lipulekh', True, white)
   kalapani = smallfont.render('Kalapani', True, white)
 
-  global menu, instructions, about, x, y, width, height, en_list
+  global menu, instructions, about, x, y, width, height, en_list, move
+
   # For pillar
   x_pillar = 400
   y_pillar = 300
   w_pillar = 20
   h_pillar = 20
-  closeness = 20
+  closeness = 30
+  pillar_threshold = 5
 
   play_once = True  # For gameover sound
   kill_state = False # When set to true, player changes shape to killing position
+  move_pressed = False # True when arrow keys pressed
+
   map1 = map2 = map3 = game_loop = False 
   while run:
     mouse = pygame.mouse.get_pos()
@@ -376,6 +423,8 @@ def start_game(run):
     pygame.display.update()
 
   while game_loop:
+    # Reset arrow keys movement flag
+    move_pressed = False
 
     # To avoid drastic change of co-ordinates
     pygame.time.delay(100)
@@ -389,20 +438,24 @@ def start_game(run):
 
       if keys[pygame.K_LEFT] and x > velocity:
           x -= velocity
+          move_pressed = True
 
       if keys[pygame.K_RIGHT] and x < scwidth - width - velocity:
           x += velocity
+          move_pressed = True
 
       if keys[pygame.K_UP] and y > velocity:
           if(y >= upper_boundary):  # Upper boundary for player
             y -= velocity
+            move_pressed = True
 
       if keys[pygame.K_DOWN] and y < scheight - height - velocity:
           y += velocity
+          move_pressed = True
 
       if keys[pygame.K_SPACE]:
           kill_state = True
-          kill_enemy(enemies_list, kill_range)
+          killed = kill_enemy(enemies_list, kill_range)
 
       if keys[pygame.K_BACKSPACE]:
           instructions = False
@@ -410,30 +463,54 @@ def start_game(run):
           run = False
           return run, menu, instructions, about
 
-    win.fill((0, 0, 0))  # Filling with black screen
-    
-    # Background create
-    pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
-    draw_forts()
+    # To fill playing area
+    win.fill((89, 89, 36))  
+    #win.fill((92, 42, 16))
+    #win.fill((48, 100, 115))
+    #win.fill((181, 173, 136))
+    #playground_blit(playground)
 
+    # Background create
+    #pygame.draw.rect(win, (0, 145, 0), (0, 0, scwidth, scheight/3))
+    draw_forts()
+  
     # Player create
-    # pygame.draw.rect(win, (255, 0, 0), (x, y, width, height))
+
+    # If space bar not pressed check if any keys pressed
+    # If pressed change blit images
+    # Else don't change
     if kill_state==False:
-      player_blit(player_image)
+      if(move_pressed == True):
+        if move==1:
+          move = 2
+          player_blit(player_image1)
+        else:
+          move = 1
+          player_blit(player_image2)
+      else:
+        player_blit(player_image1)
     else:
+      for i in killed:
+          enemy_killed_blit(enemy_killed, i[0], i[1])
       player_blit(player_kills)
+
       kill_state = False
     if(round((time()-time_current)) % 5 == 0):  # Creating enemies every 5 seconds
       en_list = random_enemies_create(e_width, e_height)
 
     if map1 == True:
+      background_blit(background1_image)
       enemies_movement(en_list, enemy_speed)
     elif map2 == True:
-      closeness = 30
+      background_blit(background2_image)
+      closeness = 40
+      pillar_threshold = 20
       # Increased enemy speed for map2
       enemies_movement(en_list, enemy_speed+10)
     elif map3 == True:
-      closeness = 30
+      background_blit(background3_image)
+      closeness = 40
+      pillar_threshold = 20
       # Increased enemy speed for map3
       enemies_movement(en_list, enemy_speed+15)
       
@@ -441,7 +518,7 @@ def start_game(run):
     create_pillar(x_pillar, y_pillar, w_pillar, h_pillar)
     x_pillar, y_pillar = carry_pillar(enemies_list, x_pillar, y_pillar, closeness)
 
-    if x_pillar < 5:  # Check if pillar reaches to left-most side
+    if x_pillar < pillar_threshold:  # Check if pillar reaches to left-most side
       game_over(x_pillar)
 
       # To avoid game over looping sound
