@@ -102,33 +102,35 @@ run = False
 instructions = False
 about = False
 
+
 def draw_forts():
+  color = (73, 77, 82)
   fort_width = 20
   fort_height = 30
 
   x1_fort = 0
   y1_fort = scheight/3
-  pygame.draw.rect(win, blue, (x1_fort, y1_fort, fort_width, fort_height))
+  pygame.draw.rect(win, color, (x1_fort, y1_fort, fort_width, fort_height))
 
   x2_fort = scwidth/2
   y2_fort = scheight/3
-  pygame.draw.rect(win, blue, (x2_fort, y2_fort, fort_width, fort_height))
+  pygame.draw.rect(win, color, (x2_fort, y2_fort, fort_width, fort_height))
 
-  x3_fort = scwidth
+  x3_fort = scwidth-20
   y3_fort = scheight/3
-  pygame.draw.rect(win, blue, (x3_fort, y3_fort, fort_width, fort_height))
+  pygame.draw.rect(win, color, (x3_fort, y3_fort, fort_width, fort_height))
 
   x4_fort = 0
-  y4_fort = scheight
-  pygame.draw.rect(win, blue, (x4_fort, y4_fort, fort_width, fort_height))
+  y4_fort = scheight-20
+  pygame.draw.rect(win, color, (x4_fort, y4_fort, fort_width, fort_height))
 
   x5_fort = scwidth/2
-  y5_fort = scheight
-  pygame.draw.rect(win, blue, (x5_fort, y5_fort, fort_width, fort_height))
+  y5_fort = scheight-20
+  pygame.draw.rect(win, color, (x5_fort, y5_fort, fort_width, fort_height))
 
-  x6_fort = scwidth
-  y6_fort = scheight
-  pygame.draw.rect(win, blue, (x6_fort, y6_fort, fort_width, fort_height))
+  x6_fort = scwidth-20
+  y6_fort = scheight-20
+  pygame.draw.rect(win, color, (x6_fort, y6_fort, fort_width, fort_height))
 
 
 def player_blit(player_image):
