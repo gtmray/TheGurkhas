@@ -66,9 +66,9 @@ e_width = 10
 e_height = 10
 en_list = []
 move_enemy = 1
-enemy_image_file1 = "Images/enemy.png"
+enemy_image_file1 = "Images/enemy1.png"
 enemy_image1 = pygame.image.load(enemy_image_file1)
-enemy_image_file2 = "Images/enemy.png"
+enemy_image_file2 = "Images/enemy2.png"
 enemy_image2 = pygame.image.load(enemy_image_file2)
 
 enemy_killed_file = "Images/killed.png"
@@ -166,13 +166,15 @@ def enemies_movement(enemies_list, enemy_speed):
 
   for co_x, co_y, co_w, co_h in enemies_list:
     #pygame.draw.rect(win, (255, 255, 0), (co_x, co_y, co_w, co_h))
-    if(move_enemy==1):
-      move_enemy = 2
-      win.blit(enemy_image1, (co_x, co_y))
+    if freeze == False:
+      if(move_enemy==1):
+        move_enemy = 2
+        win.blit(enemy_image1, (co_x, co_y))
+      else:
+        move_enemy = 1
+        win.blit(enemy_image2, (co_x, co_y))
     else:
-      move_enemy = 1
-      win.blit(enemy_image2, (co_x, co_y))
-
+      win.blit(enemy_image1, (co_x, co_y))
 
 
 def enemy_crossing_score(enemies_list):
